@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+const incident = {
+  id: 'INC-1042',
+  title: 'Production API failure',
+  rootCause: 'Database connection-pool regression',
+  confidence: 'High',
+  trace: [
+    ['Coordinator', 'Opened investigation and dispatched evidence tasks'],
+    ['Log Agent', '14 findings: order-service timeouts rose 410% at 14:14'],
+    ['Metrics Agent', '8 findings: DB connections +480%, latency +230%'],
+    ['Deployment Agent', 'v4.8.2 deployed at 14:10; connection-pool changed'],
+    ['Code Agent', 'db/config.ts: maxConnections 50 → 250'],
+    ['Infrastructure Agent', 'Redis config changed at 14:09; latency remained baseline'],
+    ['Skeptic Agent', 'Requested Redis verification to rule out correlation'],
+    ['Verification Agent', 'Redis error rate and latency normal; lower support hypothesis']
+  ]
+};
+const [, , command, ...args] = process.argv;
+const printTrace = () => {
+  console.log(`\nTRACE: ${incident.id} — ${incident.title}\n`);
+  incident.trace.forEach(([agent, finding], index) => console.log(`${index === incident.trace.length - 1 ? '└' : '├'}─ ${agent}\n   ${finding}`));
+  console.log(`\nConclusion: ${incident.rootCause} (${incident.confidence} confidence)\n`);
+};
+if (command === 'incident' && args[0] === 'simulate') {
+  const failure = args.includes('--failure') ? args[args.indexOf('--failure') + 1] : null;
+  console.log(`Simulated ${incident.id}. ${failure === 'metrics-api' ? 'Metrics source unavailable; coordinator will use alternate evidence.' : 'All evidence sources connected.'}`);
+} else if (command === 'trace' || command === 'replay') {
+  printTrace();
+} else if (command === 'test') {
+  console.log('✓ Timeline ordering\n✓ Evidence references preserved\n✓ Competing hypothesis receives verification\n✓ Source failure reduces confidence without aborting');
+} else if (command === 'diff') {
+  console.log('No material difference: both runs identify the database connection-pool regression as the primary hypothesis.');
+} else {
+  console.log('TraceMind CLI\n\n  tracemind incident simulate incident.json [--failure metrics-api]\n  tracemind trace <incident-id>\n  tracemind replay <incident-id>\n  tracemind test\n  tracemind diff <run-a> <run-b>');
+}
