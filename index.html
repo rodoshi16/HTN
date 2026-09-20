@@ -1,71 +1,63 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TraceMind — Incident Intelligence</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <a class="brand" href="#overview" aria-label="TraceMind home"><span class="brand-mark">T</span><span>trace<span>mind</span></span></a>
-        <nav class="main-nav" aria-label="Main navigation">
-          <a class="nav-item active" href="#overview"><span>◫</span> Overview</a>
-          <a class="nav-item" href="#timeline"><span>◷</span> Investigations</a>
-          <a class="nav-item" href="#graph"><span>⌘</span> Evidence graph</a>
-          <a class="nav-item" href="#agents"><span>◌</span> Agent activity</a>
-          <a class="nav-item" href="#reports"><span>▤</span> Reports</a>
-        </nav>
-        <div class="sidebar-bottom">
-          <div class="live-service"><span class="status-dot"></span><span>Systems operational</span></div>
-          <button class="user-card" type="button"><span class="avatar">RS</span><span><strong>R. Sharma</strong><small>Incident commander</small></span><b>···</b></button>
-        </div>
-      </aside>
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TraceMind / Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="terminal-shell">
+    <header class="masthead"><a href="#" class="wordmark"><i>◈</i> TRACE<span>MIND</span><small>ON-CALL COMMAND</small></a><div class="system-line"><span class="live-dot"></span> PROD / us-east-1 <b>•</b> 12 SERVICES HEALTHY <b>•</b> INCIDENT ROOM OPEN</div><div class="operator">RS <span>INCIDENT COMMANDER</span></div></header>
+    <main>
+      <section class="incident-bar">
+        <div class="severity">SEV<br><strong>1</strong></div><div class="incident-id"><span class="eyebrow"><i></i> INVESTIGATING / INC-1042</span><h1>Checkout API errors</h1><p>Production · api-gateway / order-service · started 14:14 UTC</p></div>
+        <div class="incident-stats"><div><small>PRIMARY THEORY</small><b id="primaryTheory">Pool regression</b></div><div><small>CONFIDENCE</small><b class="green"><span id="confidence">82</span>%</b></div><div><small>TIME TO IMPACT</small><b>04m 12s</b></div></div>
+        <button id="replayBtn" class="command-btn">▶ REPLAY TRACE</button>
+      </section>
 
-      <main>
-        <header class="topbar">
-          <button class="crumb" type="button">Production <span>⌄</span></button>
-          <div class="top-actions"><button class="icon-btn" type="button" aria-label="Notifications">♧<i></i></button><button class="help-btn" type="button">?</button></div>
-        </header>
-
-        <section class="content" id="overview">
-          <div class="incident-heading">
-            <div class="eyebrow"><span class="pulse"></span> Active investigation <span class="divider">/</span> INC-1042</div>
-            <div class="title-row"><div><h1>Production API failure</h1><p>Checkout failures across the North America storefront.</p></div><div class="title-actions"><button class="secondary-btn" id="failureToggle" type="button">Simulate source failure</button><button class="primary-btn" id="replayBtn" type="button"><span>▷</span> Replay investigation</button></div></div>
-          </div>
-
-          <div class="signal-grid">
-            <article class="signal-card impact"><div class="card-label">Customer impact</div><div class="signal-value">34.8<span>%</span></div><p>Checkout attempts failed</p><div class="spark spark-red"><svg viewBox="0 0 160 38" preserveAspectRatio="none"><path d="M0,33 L30,31 L52,31 L70,30 L80,27 L93,29 L105,19 L117,24 L129,9 L144,14 L160,4"/></svg></div></article>
-            <article class="signal-card"><div class="card-label">Primary hypothesis</div><div class="hypothesis-title"><span class="db-icon">◒</span> Connection-pool regression</div><p><span class="strong-support">●</span> Strong support</p><div class="mini-scale"><i style="width:82%"></i></div></article>
-            <article class="signal-card"><div class="card-label">Investigation confidence</div><div class="confidence-row"><div class="confidence-ring"><span>High</span></div><div><strong>82%</strong><p>Evidence coverage</p></div></div><div class="mini-scale"><i style="width:82%"></i></div></article>
-            <article class="signal-card"><div class="card-label">Investigation progress</div><div class="progress-value"><strong id="progressCount">7</strong><span>/ 8 agents complete</span></div><div class="agent-dots" id="agentDots"></div><p class="waiting" id="waitingText">Verification agent running</p></article>
-          </div>
-
-          <div class="workspace-grid">
-            <section class="panel investigation-panel">
-              <div class="panel-title"><div><span class="section-kicker">INVESTIGATION</span><h2>What happened?</h2></div><button class="quiet-btn" type="button">View report <span>→</span></button></div>
-              <div class="root-cause"><div class="root-icon">↯</div><div><span class="result-label">Likely root cause</span><h3>Database connection-pool regression</h3><p>Version <code>4.8.2</code> increased the pool limit from <code>50 → 250</code>, creating a connection surge that saturated PostgreSQL and cascaded into API timeouts.</p></div><div class="confidence-badge">82%<small>confidence</small></div></div>
-              <div class="evidence-chain"><div class="chain-label">Evidence chain</div><div class="chain-items"><button class="evidence-chip" data-evidence="deploy">v4.8.2 deployed <small>14:10</small></button><span>→</span><button class="evidence-chip" data-evidence="config">Pool 50 → 250</button><span>→</span><button class="evidence-chip" data-evidence="connections">DB connections +480%</button><span>→</span><button class="evidence-chip" data-evidence="timeout">API timeouts +410%</button></div></div>
-              <div class="finding-footer"><span><b>6</b> corroborating findings</span><span><b>0</b> direct contradictions</span><button type="button" id="inspectEvidence">Inspect evidence <span>→</span></button></div>
-            </section>
-
-            <section class="panel agents-panel" id="agents"><div class="panel-title"><div><span class="section-kicker">ORCHESTRATION</span><h2>Agent activity</h2></div><span class="live-label"><i></i> Live</span></div><div class="agent-list" id="agentList"></div></section>
-          </div>
-
-          <div class="lower-grid">
-            <section class="panel timeline-panel" id="timeline"><div class="panel-title"><div><span class="section-kicker">EVENT SEQUENCE</span><h2>Incident timeline</h2></div><div class="time-window">14:08 — 14:18 <span>⌄</span></div></div><div class="timeline" id="timelineList"></div></section>
-            <section class="panel hypothesis-panel" id="reports"><div class="panel-title"><div><span class="section-kicker">COMPETING EXPLANATIONS</span><h2>Hypotheses</h2></div><button class="quiet-btn" type="button">View all <span>→</span></button></div><div class="hypothesis-list"><article class="hypothesis-item selected"><div class="hypothesis-head"><span class="rank">01</span><div><h3>Connection-pool regression</h3><p>Database configuration · v4.8.2</p></div><span class="support strong">Strong</span></div><div class="support-bar"><i style="width:82%"></i></div><div class="hypo-meta"><span>6 supporting signals</span><span>0 counter-signals</span></div></article><article class="hypothesis-item"><div class="hypothesis-head"><span class="rank">02</span><div><h3>Redis configuration regression</h3><p>Infrastructure change · 14:09</p></div><span class="support weak">Weak</span></div><div class="support-bar dim"><i style="width:28%"></i></div><div class="hypo-meta"><span>1 supporting signal</span><span>3 counter-signals</span></div></article></div><button class="skeptic-callout" id="skepticBtn" type="button"><span class="skeptic-icon">◇</span><span><small>SKEPTIC REQUEST</small><strong id="skepticTitle">Verify Redis behaviour during incident window</strong></span><span class="arrow">→</span></button></section>
-          </div>
-
-          <section class="panel graph-panel" id="graph"><div class="panel-title"><div><span class="section-kicker">EXPLAINABILITY</span><h2>Evidence graph</h2></div><div class="graph-legend"><span><i class="fact-dot"></i> Fact</span><span><i class="infer-dot"></i> Inference</span></div></div><div class="graph-body"><svg viewBox="0 0 900 225" role="img" aria-label="Evidence graph connecting deployment, configuration, database symptoms, and production impact"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker></defs><path class="edge active" d="M152 114 C 210 114, 218 62, 282 62"/><path class="edge active" d="M403 62 C 465 62, 473 62, 529 62"/><path class="edge active" d="M650 62 C 700 62, 700 111, 751 111"/><path class="edge inactive" d="M152 114 C 240 114, 240 178, 327 178"/><path class="edge inactive" d="M445 178 C 553 178, 570 143, 751 111"/><g class="graph-node fact"><rect x="34" y="85" width="118" height="58" rx="10"/><text x="52" y="109">DEPLOYMENT</text><text class="node-value" x="52" y="130">v4.8.2 · 14:10</text></g><g class="graph-node fact"><rect x="282" y="33" width="121" height="58" rx="10"/><text x="300" y="57">CONFIG CHANGE</text><text class="node-value" x="300" y="78">Pool 50 → 250</text></g><g class="graph-node fact"><rect x="529" y="33" width="121" height="58" rx="10"/><text x="547" y="57">DATABASE</text><text class="node-value" x="547" y="78">Connections +480%</text></g><g class="graph-node inference"><rect x="751" y="82" width="115" height="58" rx="10"/><text x="769" y="106">API IMPACT</text><text class="node-value" x="769" y="127">Timeouts +410%</text></g><g class="graph-node muted"><rect x="327" y="149" width="118" height="58" rx="10"/><text x="345" y="173">REDIS CHANGE</text><text class="node-value" x="345" y="194">Config · 14:09</text></g></svg><div class="graph-detail" id="graphDetail"><span class="detail-dot"></span><div><small>SELECTED EVIDENCE</small><strong>Deployment v4.8.2 introduced the observed configuration change.</strong></div><code>DEP-482</code></div></div></section>
+      <div class="command-grid">
+        <section class="panel briefing investigation-panel">
+          <div class="panel-head"><span>01 / INCIDENT AGENT</span><em>DECISION BRIEF</em></div>
+          <div class="agent-voice"><div class="agent-core">IA</div><div><p class="agent-label">INCIDENT AGENT → COMMANDER</p><h2 id="briefTitle">The evidence points to a database connection-pool regression.</h2><p id="briefText">v4.8.2 increased <code>maxConnections</code> from 50 to 250. Two minutes later, PostgreSQL connections surged, then latency, timeouts, and checkout failures followed.</p></div></div>
+          <div class="decision-chain"><span class="chain-node deploy">DEPLOY<br><b>14:10</b></span><i>→</i><span class="chain-node">CONFIG<br><b>50 → 250</b></span><i>→</i><span class="chain-node alert">DB LOAD<br><b>+480%</b></span><i>→</i><span class="chain-node danger">CUSTOMER<br><b>34.8% fail</b></span></div>
+          <div class="recommendation"><div><small>RECOMMENDED, AWAITING HUMAN APPROVAL</small><strong>Rollback checkout-api: v4.8.2 → v4.8.1</strong><p>Reverses the identified configuration change. Recovery will be verified by the Metrics Agent.</p></div><button id="approveInline" class="approve-btn">APPROVE ROLLBACK</button></div>
         </section>
-      </main>
-    </div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="./app.js"></script>
-  </body>
-</html>
+
+        <section class="panel swarm-panel">
+          <div class="panel-head"><span>02 / AGENT SWARM</span><em><i class="live-dot"></i> EXECUTION GRAPH</em></div>
+          <div class="swarm-map"><svg viewBox="0 0 440 210" aria-label="Agent collaboration topology"><path d="M218 40V83M218 83L88 131M218 83L349 131M88 131L218 177M349 131L218 177"/><circle cx="218" cy="30" r="25" class="core"/><text x="218" y="34">IA</text><circle cx="88" cy="142" r="23"/><text x="88" y="146">MET</text><circle cx="349" cy="142" r="23"/><text x="349" y="146">DEP</text><circle cx="218" cy="187" r="23" class="verify"/><text x="218" y="191">VER</text><text x="218" y="73" class="label">COORDINATES</text><text x="47" y="181" class="label">MEASURES</text><text x="310" y="181" class="label">INSPECTS</text></svg></div>
+          <div class="swarm-explainer"><b>HOW THE SWARM IS WORKING</b><p>Specialists investigate different sources in parallel. The Skeptic Agent challenged the deployment theory; the Verification Agent tested Redis and found normal latency and errors.</p></div>
+        </section>
+
+        <section class="panel evidence-ledger">
+          <div class="panel-head"><span>03 / EVIDENCE LEDGER</span><em>IMMUTABLE REFERENCES</em></div>
+          <div class="metric-band"><div><small>DB CONNECTIONS</small><strong>42 <i>→</i> 244</strong><b>+480%</b></div><div><small>DB P95 LATENCY</small><strong>48ms <i>→</i> 159ms</strong><b>+230%</b></div><div><small>API TIMEOUTS</small><strong>1.2% <i>→</i> 6.1%</strong><b>+410%</b></div></div>
+          <div class="evidence-table"><div class="thead"><span>ID</span><span>OBSERVATION</span><span>ROLE</span></div><div id="evidenceRows"><div><code>DEP-482</code><span>v4.8.2 deployed before symptoms</span><b>SUPPORTS</b></div><div><code>CODE-991</code><span>pool maximum changed 50 → 250</span><b>SUPPORTS</b></div><div><code>MET-112</code><span>active PostgreSQL connections rose</span><b>SUPPORTS</b></div><div><code>VER-044</code><span>Redis health remained baseline</span><b>RULES OUT</b></div></div></div>
+        </section>
+
+        <section class="panel live-trace">
+          <div class="panel-head"><span>04 / LIVE INVESTIGATION TRACE</span><em id="traceStatus"><i class="live-dot"></i> STREAMING</em></div>
+          <div id="agentList" class="trace-list"></div>
+          <div class="trace-summary"><span><b id="progressCount">0</b> tasks complete</span><span id="waitingText">Agent swarm initializing</span></div>
+        </section>
+
+        <section class="panel timeline-panel">
+          <div class="panel-head"><span>05 / CAUSAL TIMELINE</span><em>UTC / 14:09–14:16</em></div>
+          <div id="timelineList" class="timeline"></div>
+        </section>
+
+        <section class="panel hypotheses">
+          <div class="panel-head"><span>06 / HYPOTHESIS REVIEW</span><em>FACT ≠ INFERENCE</em></div>
+          <div class="hypothesis-list"></div>
+          <div class="skeptic-note"><span>◇</span><p><b>SKEPTIC AGENT</b><br>“Redis changed first. Verify it before accepting a deployment correlation.”<br><em>→ Verification found Redis within baseline.</em></p></div>
+        </section>
+      </div>
+
+      <section class="ask-bar"><span>INCIDENT AGENT</span><input id="askInput" placeholder="Ask why, request a verification, or inspect a piece of evidence…" /><button id="askBtn">SEND ↗</button></section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="./app.js"></script>
+</body></html>
