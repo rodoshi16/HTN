@@ -7,10 +7,11 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./ops.css" />
+  <link rel="stylesheet" href="./command-plus.css" />
 </head>
 <body>
   <div class="terminal-shell">
-    <header class="masthead"><a href="#" class="wordmark"><i>◈</i> TRACE<span>MIND</span><small>ON-CALL COMMAND</small></a><div class="system-line"><span class="live-dot"></span> PROD / us-east-1 <b>•</b> 12 SERVICES HEALTHY <b>•</b> INCIDENT ROOM OPEN</div><div class="operator">RS <span>INCIDENT COMMANDER</span></div></header>
+    <header class="masthead"><a href="#" class="wordmark"><i>◈</i> TRACE<span>MIND</span><small>ON-CALL COMMAND</small></a><div class="system-line"><span class="live-dot"></span> PROD / us-east-1 <b>•</b> 12 SERVICES HEALTHY <b>•</b> INCIDENT ROOM OPEN</div><select id="scenarioSelect" aria-label="Demo scenario"><option>LOAD SCENARIO…</option></select><div class="operator">RS <span>INCIDENT COMMANDER</span></div></header>
     <main>
       <section class="incident-bar">
         <div class="severity">SEV<br><strong>1</strong></div><div class="incident-id"><span class="eyebrow"><i></i> INVESTIGATING / INC-1042</span><h1>Checkout API errors</h1><p>Production · api-gateway / order-service · started 14:14 UTC</p></div>
@@ -53,6 +54,16 @@
           <div class="panel-head"><span>06 / HYPOTHESIS REVIEW</span><em>FACT ≠ INFERENCE</em></div>
           <div class="hypothesis-list"></div>
           <div class="skeptic-note"><span>◇</span><p><b>SKEPTIC AGENT</b><br>“Redis changed first. Verify it before accepting a deployment correlation.”<br><em>→ Verification found Redis within baseline.</em></p></div>
+        </section>
+
+        <section class="panel radio-panel">
+          <div class="panel-head"><span>07 / SWARM RADIO</span><em>STRUCTURED AGENT MESSAGES</em></div>
+          <div id="radioLog" class="radio-log"><p>Awaiting agent traffic…</p></div>
+        </section>
+        <section class="panel report-panel">
+          <div class="panel-head"><span>08 / INCIDENT ARTIFACTS</span><em>HANDOFF READY</em></div>
+          <div class="artifact-copy"><b>POSTMORTEM DRAFT</b><p>Generate an evidence-cited incident report for the next on-call handoff or engineering follow-up.</p></div>
+          <div class="artifact-actions"><button id="reportBtn">COPY INCIDENT REPORT</button><button id="auditBtn">VIEW SAFETY AUDIT</button></div>
         </section>
       </div>
 

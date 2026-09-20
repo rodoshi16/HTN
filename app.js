@@ -10,6 +10,7 @@ function renderTrace(tasks=[]) {
 function renderTimeline(timeline=[]) { $('#timelineList').innerHTML=timeline.map(e=>`<div class="timeline-row ${e.category==='impact'?'critical':''}"><div class="timeline-time">${e.occurred_at}</div><div class="timeline-pin"><i></i></div><div class="timeline-copy"><strong>${e.title}</strong><span>${e.detail}</span></div></div>`).join(''); }
 function renderHypotheses(items=[]) { $('.hypothesis-list').innerHTML=items.slice(0,2).map((item,index)=>`<article class="hypothesis-item"><div class="hypothesis-head"><span class="rank">0${index+1}</span><div><h3>${item.title}</h3><p>${humanize(item.status)}</p></div><span class="support ${index===0?'strong':''}">${Math.round(item.confidence*100)}%</span></div><div class="support-bar ${index?'dim':''}"><i style="width:${Math.round(item.confidence*100)}%"></i></div><div class="hypo-meta"><span>${item.supporting_json?.length||0} supporting</span><span>${item.contradicting_json?.length||0} contradicting</span></div></article>`).join(''); }
 function renderEvidence(evidence=[]) { if(!evidence.length) return; $('#evidenceRows').innerHTML=evidence.slice(0,5).map(e=>`<div><code>${e.id.toUpperCase()}</code><span>${e.kind.replaceAll('_',' ')} observed from ${e.source}</span><b>${e.source==='verification'?'RULES OUT':'SUPPORTS'}</b></div>`).join(''); }
+function renderRadio(messages=[]) { $('#radioLog').innerHTML=messages.slice(-5).reverse().map(message=>`<div class="radio-row"><b>${humanize(message.sender)}</b><span>${message.body}<em>${message.message_type.toUpperCase()}${message.evidence_ids_json?.length?` · ${message.evidence_ids_json.join(', ')}`:''}</em></span></div>`).join('')||'<p>Awaiting agent traffic…</p>'; }
 function showApproval(state) {
   const action=state.actions?.find(a=>a.status==='pending_approval'); const button=$('#approveInline');
   button.disabled=!action; button.textContent=action?(action.kind==='create_github_issue'?'APPROVE ISSUE CREATION':'APPROVE ROLLBACK'):'NO ACTION PENDING';
@@ -21,7 +22,7 @@ function render(state) {
   $('.incident-id h1').textContent=state.incident.title;
   $('#confidence').textContent=Math.round((state.incident.confidence||0)*100);
   const primary=state.hypotheses?.[0]; if(primary){$('#primaryTheory').textContent=primary.title;$('#briefTitle').textContent=`The evidence points to ${primary.title.toLowerCase()}.`;}
-  renderTrace(state.tasks);renderTimeline(state.timeline);renderHypotheses(state.hypotheses);renderEvidence(state.evidence);showApproval(state);
+  renderTrace(state.tasks);renderTimeline(state.timeline);renderHypotheses(state.hypotheses);renderEvidence(state.evidence);renderRadio(state.messages);showApproval(state);
   $('#waitingText').textContent=state.incident.status==='mitigated'?'Recovery verified by deployment and metrics agents':state.incident.status==='awaiting_approval'?'Commander decision required: rollback is prepared':'Specialists are independently collecting evidence';
 }
 async function refresh(){ if(!incidentId)return; const response=await fetch(`/api/incidents/${incidentId}`); if(response.ok)render(await response.json()); }
@@ -35,9 +36,13 @@ async function bootstrap(){
 async function loadOperationalSignals(){
   try{const [repo,evaluation]=await Promise.all([fetch('/api/repository').then(r=>r.json()),fetch('/api/evaluations').then(r=>r.json())]);$('#repoStatus').textContent=`REPO / ${repo.sha} / ${repo.subject.slice(0,36)}`;$('#evalStatus').textContent=`EVAL SUITE / ${evaluation.summary.passed}/${evaluation.summary.scenarios} SCENARIOS PASS / ${evaluation.summary.unsafe_actions_blocked} UNSAFE ACTIONS BLOCKED`;}catch{ $('#repoStatus').textContent='REPO / LOCAL CONTEXT UNAVAILABLE';$('#evalStatus').textContent='EVAL SUITE / START SERVER TO RUN'; }
 }
+async function loadScenarios(){try{const scenarios=await fetch('/api/scenarios').then(r=>r.json());const select=$('#scenarioSelect');select.innerHTML='<option value="">LOAD SCENARIO…</option>'+scenarios.map(s=>`<option value="${s.id}">${s.id.replaceAll('_',' ').toUpperCase()} / ${s.severity}</option>`).join('');select.addEventListener('change',async()=>{if(!select.value)return;const response=await fetch('/api/incidents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenario:select.value})});const data=await response.json();localStorage.setItem('tracemind-incident',data.incidentId);location.reload();});}catch{}}
 $('#replayBtn').addEventListener('click',()=>{localStorage.removeItem('tracemind-incident');incidentId=null;location.reload();});
 $('#askBtn').addEventListener('click',async()=>{const input=$('#askInput');if(!input.value.trim()||!incidentId)return;const response=await fetch(`/api/incidents/${incidentId}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:input.value})});const data=await response.json();notify(data.reply||'The Incident Agent is reviewing your request.');input.value='';});
 $('#askInput').addEventListener('keydown',(event)=>{if(event.key==='Enter')$('#askBtn').click();});
 $('#ticketBtn').addEventListener('click',async()=>{if(!incidentId)return;const response=await fetch(`/api/incidents/${incidentId}/tickets`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const data=await response.json();notify(data.actionId?'Follow-up Issue prepared. It requires a separate approval.':data.error||'Issue could not be prepared.');});
+$('#reportBtn').addEventListener('click',async()=>{if(!incidentId)return;const text=await fetch(`/api/incidents/${incidentId}/report`).then(r=>r.text());await navigator.clipboard?.writeText(text);notify('Evidence-cited incident report copied to clipboard.');});
+$('#auditBtn').addEventListener('click',async()=>{if(!incidentId)return;const audit=await fetch(`/api/incidents/${incidentId}/audit`).then(r=>r.json());notify(`Safety audit: ${audit.policy.approval_required.length} protected action types; ${audit.approvals.length} approval record(s).`);});
 bootstrap();
 loadOperationalSignals();
+loadScenarios();
