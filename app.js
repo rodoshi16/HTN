@@ -12,8 +12,8 @@ function renderHypotheses(items=[]) { $('.hypothesis-list').innerHTML=items.slic
 function renderEvidence(evidence=[]) { if(!evidence.length) return; $('#evidenceRows').innerHTML=evidence.slice(0,5).map(e=>`<div><code>${e.id.toUpperCase()}</code><span>${e.kind.replaceAll('_',' ')} observed from ${e.source}</span><b>${e.source==='verification'?'RULES OUT':'SUPPORTS'}</b></div>`).join(''); }
 function showApproval(state) {
   const action=state.actions?.find(a=>a.status==='pending_approval'); const button=$('#approveInline');
-  button.disabled=!action; button.textContent=action?'APPROVE ROLLBACK':'NO ACTION PENDING';
-  button.onclick=async()=>{ if(!action)return; button.disabled=true; button.textContent='EXECUTING…'; const response=await fetch(`/api/incidents/${incidentId}/approve`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actionId:action.id})}); if(response.ok){notify('Rollback completed in the controlled simulation. Recovery verified.');refresh()} else notify('Approval could not be recorded.'); };
+  button.disabled=!action; button.textContent=action?(action.kind==='create_github_issue'?'APPROVE ISSUE CREATION':'APPROVE ROLLBACK'):'NO ACTION PENDING';
+  button.onclick=async()=>{ if(!action)return; button.disabled=true; button.textContent='EXECUTING…'; const response=await fetch(`/api/incidents/${incidentId}/approve`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actionId:action.id})}); if(response.ok){notify(action.kind==='create_github_issue'?'GitHub Issue created after commander approval.':'Rollback completed in the controlled simulation. Recovery verified.');refresh()} else notify('Approval could not be recorded.'); };
 }
 function render(state) {
   if(!state?.incident)return;
@@ -32,7 +32,12 @@ async function bootstrap(){
     const stream=new EventSource(`/api/incidents/${incidentId}/events`);['activity','finding','complete'].forEach(name=>stream.addEventListener(name,refresh));setTimeout(refresh,180);
   }catch(error){notify('Start the TraceMind server to open the live incident room.');}
 }
+async function loadOperationalSignals(){
+  try{const [repo,evaluation]=await Promise.all([fetch('/api/repository').then(r=>r.json()),fetch('/api/evaluations').then(r=>r.json())]);$('#repoStatus').textContent=`REPO / ${repo.sha} / ${repo.subject.slice(0,36)}`;$('#evalStatus').textContent=`EVAL SUITE / ${evaluation.summary.passed}/${evaluation.summary.scenarios} SCENARIOS PASS / ${evaluation.summary.unsafe_actions_blocked} UNSAFE ACTIONS BLOCKED`;}catch{ $('#repoStatus').textContent='REPO / LOCAL CONTEXT UNAVAILABLE';$('#evalStatus').textContent='EVAL SUITE / START SERVER TO RUN'; }
+}
 $('#replayBtn').addEventListener('click',()=>{localStorage.removeItem('tracemind-incident');incidentId=null;location.reload();});
 $('#askBtn').addEventListener('click',async()=>{const input=$('#askInput');if(!input.value.trim()||!incidentId)return;const response=await fetch(`/api/incidents/${incidentId}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:input.value})});const data=await response.json();notify(data.reply||'The Incident Agent is reviewing your request.');input.value='';});
 $('#askInput').addEventListener('keydown',(event)=>{if(event.key==='Enter')$('#askBtn').click();});
+$('#ticketBtn').addEventListener('click',async()=>{if(!incidentId)return;const response=await fetch(`/api/incidents/${incidentId}/tickets`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});const data=await response.json();notify(data.actionId?'Follow-up Issue prepared. It requires a separate approval.':data.error||'Issue could not be prepared.');});
 bootstrap();
+loadOperationalSignals();

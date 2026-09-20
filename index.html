@@ -6,6 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./ops.css" />
 </head>
 <body>
   <div class="terminal-shell">
@@ -55,6 +56,7 @@
         </section>
       </div>
 
+      <section class="ops-strip"><span id="repoStatus">REPO / CONNECTING…</span><span id="evalStatus">EVAL SUITE / LOADING…</span><button id="ticketBtn">CREATE FOLLOW-UP ISSUE</button></section>
       <section class="ask-bar"><span>INCIDENT AGENT</span><input id="askInput" placeholder="Ask why, request a verification, or inspect a piece of evidence…" /><button id="askBtn">SEND ↗</button></section>
     </main>
   </div>

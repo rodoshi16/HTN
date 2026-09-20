@@ -1,0 +1,5 @@
+tracemind.db
+tracemind.db-shm
+tracemind.db-wal
+node_modules/
+.env
