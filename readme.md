@@ -53,5 +53,3 @@ POST /api/incidents/:id/approve     { "actionId": "act_..." }
 ./tracemind trace INC-1042
 npm test
 ```
-
-The tests cover persisted agent results, skeptic-triggered verification, the approval boundary, scenario coverage, and tool-permission metadata.
