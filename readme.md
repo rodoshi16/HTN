@@ -1,5 +1,9 @@
 # TraceMind
 
+<img width="1071" height="733" alt="0FED1F17-165E-4638-8ABA-E205844A8AB5_1_105_c" src="https://github.com/user-attachments/assets/b804e63e-bec7-44ec-9e1d-3298d1de2328" />
+
+
+
 TraceMind is an evidence-first AI on-call engineering team. It runs specialized workers against structured observability, deployment, code, database, and infrastructure tools; persists every result; asks a skeptic to challenge the leading explanation; and requires explicit approval for consequential operations.
 
 ## Run locally
