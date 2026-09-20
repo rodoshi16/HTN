@@ -31,7 +31,7 @@ export GEMINI_MODEL=gemini-3.8-flash
 npm install
 npm run dev
 ```
-
+The OpenAI adapter uses the Responses API with strict JSON Schema output and `store: false`. Gemini loads its current official `@google/genai` SDK only when configured; it is an optional dependency so local simulation has no installation requirement.
 
 ## API
 
