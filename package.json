@@ -2,6 +2,8 @@
   "name": "tracemind-demo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "bin": { "tracemind": "./tracemind" },
-  "scripts": { "dev": "python3 -m http.server 4173", "start": "python3 -m http.server 4173", "test": "node ./tracemind test" }
+  "scripts": { "dev": "node server.js", "start": "node server.js", "test": "node --test tests/*.test.js" },
+  "optionalDependencies": { "@google/genai": "^1.0.0" }
 }

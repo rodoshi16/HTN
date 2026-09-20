@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { spawn } from 'node:child_process';
+
 const incident = {
   id: 'INC-1042',
   title: 'Production API failure',
@@ -22,7 +24,9 @@ const printTrace = () => {
   incident.trace.forEach(([agent, finding], index) => console.log(`${index === incident.trace.length - 1 ? '└' : '├'}─ ${agent}\n   ${finding}`));
   console.log(`\nConclusion: ${incident.rootCause} (${incident.confidence} confidence)\n`);
 };
-if (command === 'incident' && args[0] === 'simulate') {
+if (command === 'serve') {
+  spawn(process.execPath, ['server.js'], { stdio: 'inherit' });
+} else if (command === 'incident' && args[0] === 'simulate') {
   const failure = args.includes('--failure') ? args[args.indexOf('--failure') + 1] : null;
   console.log(`Simulated ${incident.id}. ${failure === 'metrics-api' ? 'Metrics source unavailable; coordinator will use alternate evidence.' : 'All evidence sources connected.'}`);
 } else if (command === 'trace' || command === 'replay') {
@@ -32,5 +36,5 @@ if (command === 'incident' && args[0] === 'simulate') {
 } else if (command === 'diff') {
   console.log('No material difference: both runs identify the database connection-pool regression as the primary hypothesis.');
 } else {
-  console.log('TraceMind CLI\n\n  tracemind incident simulate incident.json [--failure metrics-api]\n  tracemind trace <incident-id>\n  tracemind replay <incident-id>\n  tracemind test\n  tracemind diff <run-a> <run-b>');
+  console.log('TraceMind CLI\n\n  tracemind serve\n  tracemind incident simulate incident.json [--failure metrics-api]\n  tracemind trace <incident-id>\n  tracemind replay <incident-id>\n  tracemind test\n  tracemind diff <run-a> <run-b>');
 }
